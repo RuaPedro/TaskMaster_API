@@ -1,0 +1,62 @@
+erDiagram
+    USERS {
+        bigint id PK
+        string username
+        string first_name
+        string last_name
+        string email
+        text bio
+        string avatar
+        string phone
+        string department
+        boolean is_active
+        datetime date_joined
+        datetime created_at
+        datetime updated_at
+    }
+
+    PROJECTS {
+        bigint id PK
+        string name
+        text description
+        datetime created_at
+        datetime updated_at
+    }
+
+    TAGS {
+        bigint id PK
+        string name
+        datetime created_at
+        datetime updated_at
+    }
+
+    TASKS {
+        bigint id PK
+        string title
+        text description
+        string status
+        string priority
+        datetime due_date
+        datetime created_at
+        datetime updated_at
+        datetime completed_at
+        boolean is_locked
+        string tags
+        bigint project_id FK
+        bigint created_by FK
+        bigint assigned_to FK
+    }
+
+    TASK_TAGS {
+        bigint id PK
+        bigint task_id FK
+        bigint tag_id FK
+        datetime created_at
+        datetime updated_at
+    }
+
+    USERS ||--o{ TASKS : created_by
+    USERS ||--o{ TASKS : assigned_to
+    PROJECTS ||--o{ TASKS : has
+    TASKS ||--o{ TASK_TAGS : has
+    TAGS ||--o{ TASK_TAGS : has

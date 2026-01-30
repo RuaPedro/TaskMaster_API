@@ -1,0 +1,62 @@
+classDiagram
+    class CustomUser {
+        +BigInt id
+        +string username
+        +string first_name
+        +string last_name
+        +string email
+        +text bio
+        +string avatar
+        +string phone
+        +string department
+        +bool is_active
+        +datetime date_joined
+        +datetime created_at
+        +datetime updated_at
+    }
+
+    class Project {
+        +BigInt id
+        +string name
+        +text description
+        +datetime created_at
+        +datetime updated_at
+    }
+
+    class Tag {
+        +BigInt id
+        +string name
+        +datetime created_at
+        +datetime updated_at
+    }
+
+    class Task {
+        +BigInt id
+        +string title
+        +text description
+        +string status
+        +string priority
+        +datetime due_date
+        +datetime created_at
+        +datetime updated_at
+        +datetime completed_at
+        +bool is_locked
+        +string tags
+        +BigInt project_id
+        +BigInt created_by
+        +BigInt assigned_to
+    }
+
+    class TaskTag {
+        +BigInt id
+        +BigInt task_id
+        +BigInt tag_id
+        +datetime created_at
+        +datetime updated_at
+    }
+
+    CustomUser "1" --> "0..*" Task : created_by
+    CustomUser "1" --> "0..*" Task : assigned_to
+    Project "1" --> "0..*" Task : has
+    Task "1" --> "0..*" TaskTag : has
+    Tag "1" --> "0..*" TaskTag : has

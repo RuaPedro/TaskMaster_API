@@ -2,6 +2,59 @@ from django.conf import settings
 from django.db import models
 
 
+class Project(models.Model):
+    name = models.CharField(
+        max_length=120,
+        unique=True,
+        help_text="Nombre del proyecto",
+    )
+    description = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Descripcion del proyecto",
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Fecha de creacion del proyecto",
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        help_text="Fecha de ultima actualizacion",
+    )
+
+    class Meta:
+        verbose_name = "Proyecto"
+        verbose_name_plural = "Proyectos"
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Tag(models.Model):
+    name = models.CharField(
+        max_length=50,
+        unique=True,
+        help_text="Nombre unico de la etiqueta",
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Fecha de creacion de la etiqueta",
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        help_text="Fecha de ultima actualizacion",
+    )
+
+    class Meta:
+        verbose_name = "Etiqueta"
+        verbose_name_plural = "Etiquetas"
+        ordering = ["name"]
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class Task(models.Model):
     class Status(models.TextChoices):
         PENDING = "pending", "Pendiente"
@@ -64,6 +117,14 @@ class Task(models.Model):
         help_text="Etiquetas separadas por comas (ej: bug,urgent,backend)",
     )
 
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.SET_NULL,
+        related_name="tasks",
+        blank=True,
+        null=True,
+        help_text="Proyecto al que pertenece la tarea",
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -92,3 +153,39 @@ class Task(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+
+class TaskTag(models.Model):
+    task = models.ForeignKey(
+        Task,
+        on_delete=models.CASCADE,
+        related_name="task_tags",
+        help_text="Tarea asociada",
+    )
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        related_name="task_tags",
+        help_text="Etiqueta asociada",
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Fecha de creacion de la relacion",
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        help_text="Fecha de ultima actualizacion",
+    )
+
+    class Meta:
+        verbose_name = "Relacion Tarea-Etiqueta"
+        verbose_name_plural = "Relaciones Tarea-Etiqueta"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["task", "tag"],
+                name="unique_task_tag",
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.task_id}:{self.tag_id}"
