@@ -29,6 +29,5 @@ urlpatterns = [
     
     # API Endpoints
     path('api/', include('health.urls')),
-    path('api/users/', include('users.urls')),
     path('api/tasks/', include('tasks.urls')),
 ]

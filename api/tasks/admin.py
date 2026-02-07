@@ -11,7 +11,7 @@ class ProjectAdmin(admin.ModelAdmin):
 class TagAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "created_at", "updated_at")
     search_fields = ("name",)
-    ordering = ("cerated_at",)
+    ordering = ("created_at",)
     
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
@@ -21,12 +21,12 @@ class TaskAdmin(admin.ModelAdmin):
         "priority",
         "due_date",
         "created_by",
-        "asigned_to"
+        "assigned_to"
     )
-    list_filter = ("status", "priority", "assigned _to", "is_locked")
-    search_fields = ("title", "asigned_to", "tags")
+    list_filter = ("status", "priority", "assigned_to", "is_locked")
+    search_fields = ("title", "assigned_to", "tags")
     autocomplete_fields = ("project", "created_by", "assigned_to")
-    ordering = ("-created_at")
+    ordering = ("-created_at",)
     date_hierarchy = "created_at"
     
 @admin.register(TaskTag)
@@ -34,5 +34,5 @@ class TaskTagAdmin(admin.ModelAdmin):
     list_display = ("task", "tag", "created_at", "updated_at")
     search_fields = ("task__title", "tag__name")
     autocomplete_fields = ("task", "tag")
-    ordering = ("-created_at")
+    ordering = ("-created_at",)
     

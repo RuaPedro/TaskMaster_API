@@ -126,13 +126,13 @@ class Task(models.Model):
         help_text="Proyecto al que pertenece la tarea",
     )
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        "auth.User",
         on_delete=models.PROTECT,
         related_name="tasks_created",
         help_text="Usuario que creo la tarea",
     )
     assigned_to = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        "auth.User",
         on_delete=models.SET_NULL,
         related_name="tasks_assigned",
         blank=True,
