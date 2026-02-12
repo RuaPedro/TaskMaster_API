@@ -150,9 +150,10 @@ python manage.py runserver
 ```
 
 Servidor local:
-- API base: `http://127.0.0.1:8000/`
-- Swagger UI: `http://127.0.0.1:8000/api/schema/swagger-ui/`
-- ReDoc: `http://127.0.0.1:8000/api/schema/redoc/`
+- API base DRF: `http://127.0.0.1:8000/api/`
+- Swagger UI: `http://127.0.0.1:8000/api/swagger/`
+- ReDoc: `http://127.0.0.1:8000/api/redoc/`
+- Heath: `http://127.0.0.1:8000/api/health/`
 
 Nota importante sobre secretos:
 - No subas `.env` ni credenciales reales al repositorio.
@@ -183,9 +184,9 @@ Esta seccion documenta la configuracion tecnica minima de **rutas (endpoints)** 
 
 Estructura relevante del proyecto:
 - `api/config/urls.py`: rutas principales del proyecto (registro global).
-- `api/health/views.py`: controlador simple para `GET /api/ping/`.
-- `api/health/urls.py`: rutas del recurso health/ping.
-- `api/users/models.py`: modelo `CustomUser`.
+- `api/health/views.py`: controlador simple para `GET /api/health/`.
+- `api/health/urls.py`: rutas del recurso health.
+- `api/users/models.py`: modelo `UserProfile`.
 - `api/users/serializers.py`: serializer de usuarios.
 - `api/users/views.py`: controlador `UserViewSet`.
 - `api/users/urls.py`: router DRF para usuarios.
@@ -203,7 +204,7 @@ Separacion aplicada:
 ### B) Paso a paso tecnico (mini tutorial)
 
 1. Se definieron los modelos base por recurso:
-   `CustomUser` en `api/users/models.py` y `Task` en `api/tasks/models.py`.
+   `UserProfile` en `api/users/models.py` y `Task` en `api/tasks/models.py`.
 2. Se crearon serializers DRF por recurso:
    `UserSerializer` y `TaskSerializer`.
 3. Se implementaron controladores con DRF ViewSets:
@@ -212,15 +213,15 @@ Separacion aplicada:
    `DefaultRouter()` en `api/users/urls.py` y `api/tasks/urls.py`.
 5. Se conectaron todas las rutas en el registro global:
    `api/config/urls.py` incluye:
-   - `path("api/", include("health.urls"))`
-   - `path("api/users/", include("users.urls"))`
-   - `path("api/tasks/", include("tasks.urls"))`
+   - `path("api/health", include("health.urls"))`
+   - `path("api/", include("users.urls"))`
+   - `path("api/", include("tasks.urls"))`
 
 ### C) Endpoints implementados (minimo requerido)
 
-1) Healthcheck / Ping
+1) Healthcheck
 - Metodo: `GET`
-- Ruta: `/api/ping/`
+- Ruta: `/api/health/`
 - Que hace: confirma que la API responde.
 - Respuesta JSON ejemplo:
 
@@ -228,7 +229,6 @@ Separacion aplicada:
 {
   "status": "ok",
   "service": "taskmaster-api",
-  "message": "pong"
 }
 ```
 

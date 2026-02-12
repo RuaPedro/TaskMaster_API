@@ -24,10 +24,10 @@ urlpatterns = [
     
     # API Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('api/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     
     # API Endpoints
-    path('api/', include('health.urls')),
-    path('api/tasks/', include('tasks.urls')),
+    path('api/health/', include('health.urls')),
+    path('api/', include('tasks.urls')),
 ]

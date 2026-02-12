@@ -1,7 +1,7 @@
 from django.urls import path
 
-from .views import PingView
+from .views import HealthStatusView
 
 urlpatterns = [
-    path("ping/", PingView.as_view(), name="ping"),
+    path("", HealthStatusView.as_view(), name="heath"),
 ]
