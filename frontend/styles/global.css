@@ -1,0 +1,84 @@
+/* Tema claro minimalista compatible con Bootstrap */
+:root {
+  --tm-bg: #f7f9fc;
+  --tm-surface: #ffffff;
+  --tm-border: #e5e7eb;
+  --tm-text: #1f2937;
+  --tm-muted: #6b7280;
+  --tm-primary: #2563eb;
+  --tm-primary-light: #e0e7ff;
+  --tm-success: #16a34a;
+  --tm-radius: 12px;
+  --tm-shadow: 0 10px 30px rgba(31, 41, 55, 0.08);
+}
+
+body {
+  background: var(--tm-bg);
+  color: var(--tm-text);
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.app-header {
+  background: var(--tm-surface);
+  border: 1px solid var(--tm-border);
+  border-radius: var(--tm-radius);
+  padding: 12px 16px;
+  box-shadow: var(--tm-shadow);
+}
+
+.brand__logo {
+  width: 28px;
+  height: 28px;
+}
+
+.app-nav a {
+  color: var(--tm-text);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+.app-nav a:hover {
+  background: var(--tm-primary-light);
+  color: var(--tm-primary);
+}
+
+.app-content {
+  margin-top: 20px;
+  background: var(--tm-surface);
+  border: 1px solid var(--tm-border);
+  border-radius: var(--tm-radius);
+  padding: 24px;
+  min-height: 400px;
+  box-shadow: var(--tm-shadow);
+}
+
+.page-placeholder {
+  text-align: center;
+  color: var(--tm-muted);
+}
+
+.card {
+  background: var(--tm-surface);
+  border: 1px solid var(--tm-border);
+  border-radius: var(--tm-radius);
+  box-shadow: var(--tm-shadow);
+}
+
+.card .card-body {
+  background: var(--tm-surface);
+}
+
+.btn-success {
+  background-color: var(--tm-success);
+  border-color: var(--tm-success);
+}
+
+.btn-primary {
+  background-color: var(--tm-primary);
+  border-color: var(--tm-primary);
+}

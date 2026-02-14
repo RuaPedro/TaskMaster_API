@@ -1,24 +1,59 @@
 from rest_framework import serializers
 
-from .models import Task
+from .models import BlockTask, StudyBlock, StudyTopic
 
 
-class TaskSerializer(serializers.ModelSerializer):
+class BlockTaskSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Task
+        model = BlockTask
         fields = [
             "id",
+            "block",
             "title",
-            "description",
+            "instructions",
+            "resources",
+            "estimated_minutes",
+            "order",
             "status",
-            "priority",
-            "due_date",
             "created_at",
             "updated_at",
-            "completed_at",
-            "is_locked",
-            "tags",
-            "created_by",
-            "assigned_to",
         ]
-        read_only_fields = ["id", "created_at", "updated_at", "completed_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class StudyBlockSerializer(serializers.ModelSerializer):
+    tasks = BlockTaskSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = StudyBlock
+        fields = [
+            "id",
+            "topic",
+            "number",
+            "title",
+            "description",
+            "estimated_minutes",
+            "is_published",
+            "created_at",
+            "updated_at",
+            "tasks",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at", "tasks"]
+
+
+class StudyTopicSerializer(serializers.ModelSerializer):
+    blocks = StudyBlockSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = StudyTopic
+        fields = [
+            "id",
+            "name",
+            "description",
+            "difficulty",
+            "is_active",
+            "created_at",
+            "updated_at",
+            "blocks",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at", "blocks"]

@@ -1,112 +1,131 @@
 # TaskMaster API
 
-API REST para gestionar **usuarios** y **tareas**. Esta API es la parte “maestra” del proyecto de backend y está pensada para conectarse más adelante con otra API llamada **TaskRunner API**.
-
-El problema que resuelve es simple y real: llevar el control de quiénes son los usuarios del sistema y qué tareas existen, quién las crea y a quién se asignan.
+API REST para gestionar **temas de estudio**, **bloques**, **tareas de bloque** y el progreso de **estudiantes**. Es la capa de backend que servirá datos a un frontend y a futuros consumidores.
 
 ## A) Descripción corta
 
-TaskMaster API centraliza la información base del dominio: usuarios y tareas. En esta etapa inicial, el objetivo es tener una base clara, documentada y fácil de correr en local.
+TaskMaster API organiza contenido educativo en temas → bloques → tareas. Permite exponer tareas listas para usarse, asignarlas a estudiantes y seguir su estado.
 
 ## B) Alcance (Scope) y Recursos (MVP)
 
 Recursos principales del MVP:
 
-### 1) Users
-Operaciones REST planeadas:
+### 1) Study Topics
+Estructuran el plan de estudio.
+- `GET /api/topics/` — listar temas
+- `POST /api/topics/` — crear tema
+- `GET /api/topics/{id}/` — detalle
+- `PATCH /api/topics/{id}/` — actualizar
+
+### 2) Study Blocks
+Bloques secuenciales dentro de un tema.
+- `GET /api/blocks/` — listar bloques
+- `POST /api/blocks/` — crear bloque
+- `GET /api/blocks/{id}/` — detalle
+- `PATCH /api/blocks/{id}/` — actualizar
+
+### 3) Block Tasks
+Tareas concretas dentro de un bloque.
+- `GET /api/block-tasks/` — listar tareas de bloque
+- `POST /api/block-tasks/` — crear tarea
+- `GET /api/block-tasks/{id}/` — detalle
+- `PATCH /api/block-tasks/{id}/` — actualizar
+
+### 4) Students & Progress
+Gestión de estudiantes y su avance.
+- `GET /api/students/` — listar/crear estudiantes
+- `GET /api/student-task-progress/` — ver/crear progreso por tarea
+- `PATCH /api/student-task-progress/{id}/` — actualizar estado (pending, in_progress, completed)
+
+### 5) Users (auth_user)
+CRUD básico sobre el usuario Django por defecto.
 - `GET /api/users/` — listar usuarios
 - `POST /api/users/` — crear usuario
-- `GET /api/users/{id}/` — ver detalle de usuario
-- `PATCH /api/users/{id}/` — actualizar parcialmente un usuario
-
-### 2) Tasks
-Operaciones REST planeadas:
-- `GET /api/tasks/` — listar tareas
-- `POST /api/tasks/` — crear tarea
-- `GET /api/tasks/{id}/` — ver detalle de tarea
-- `PATCH /api/tasks/{id}/` — actualizar estado/prioridad/asignación
-
-Nota: por ahora el MVP se enfoca solo en **users** y **tasks**.
+- `GET /api/users/{id}/` — detalle
+- `PATCH /api/users/{id}/` — actualizar
 
 ## C) Reglas de negocio (iniciales)
 
-Estas reglas están definidas para el MVP y pueden evolucionar:
+- Un bloque siempre pertenece a un tema y su número (`number`) es único dentro del tema.
+- Una tarea siempre pertenece a un bloque y su `order` es único dentro del bloque.
+- Estados de tarea de bloque: `available`, `archived`.
+- Estados de progreso de estudiante: `pending`, `in_progress`, `completed`.
+- Un estudiante solo puede tener un registro de progreso por tarea (`unique_together student + task`).
 
-- Una tarea siempre debe tener `title`.
-- Toda tarea debe tener un `created_by` válido (un usuario existente).
-- `assigned_to` es opcional, pero si se envía debe ser un usuario existente.
-- Los estados válidos de una tarea son: `pending`, `in_progress`, `completed`, `archived`.
-- Una tarea archivada (`archived`) no debería volver a estados anteriores.
-- Si una tarea está bloqueada (`is_locked = true`), no debe poder editarse.
+## D) Contrato preliminar (ejemplos)
 
-## D) Contrato preliminar (simple)
-
-A continuación se muestran endpoints propuestos y ejemplos JSON *mock* (todavía pueden cambiar).
-
-### Endpoint 1 — Crear tarea
+### Endpoint — Crear tarea de bloque
 
 **Request**
-
 ```http
-POST /api/tasks/
+POST /api/block-tasks/
 Content-Type: application/json
 
 {
-  "title": "Preparar demo",
-  "description": "Armar un ejemplo mínimo para la clase",
-  "created_by": 1,
-  "assigned_to": 2,
-  "priority": "medium",
-  "status": "pending"
+  "block": 1,
+  "title": "Resolver 5 ejercicios de listas",
+  "instructions": "Usa comprensión de listas y documenta tu solución.",
+  "estimated_minutes": 20,
+  "order": 1
 }
 ```
 
 **Response (201 Created)**
-
 ```json
 {
   "id": 10,
-  "title": "Preparar demo",
-  "description": "Armar un ejemplo mínimo para la clase",
-  "created_by": 1,
-  "assigned_to": 2,
-  "priority": "medium",
-  "status": "pending",
-  "is_locked": false,
-  "created_at": "2026-01-27T05:00:00Z",
-  "updated_at": "2026-01-27T05:00:00Z"
+  "block": 1,
+  "title": "Resolver 5 ejercicios de listas",
+  "instructions": "Usa comprensión de listas y documenta tu solución.",
+  "resources": null,
+  "estimated_minutes": 20,
+  "order": 1,
+  "status": "available",
+  "created_at": "2026-02-14T05:40:00Z",
+  "updated_at": "2026-02-14T05:40:00Z"
 }
 ```
 
-### Endpoint 2 — Listar tareas
+### Endpoint — Registrar progreso de estudiante
 
 **Request**
-
 ```http
-GET /api/tasks/?status=pending&assigned_to=2
-```
+POST /api/student-task-progress/
+Content-Type: application/json
 
-**Response (200 OK)**
-
-```json
 {
-  "count": 1,
-  "next": null,
-  "previous": null,
-  "results": [
-    {
-      "id": 10,
-      "title": "Preparar demo",
-      "priority": "medium",
-      "status": "pending",
-      "created_by": 1,
-      "assigned_to": 2
-    }
-  ]
+  "student": 3,
+  "task": 10,
+  "status": "in_progress"
 }
 ```
 
-## E) Instalación y ejecución local (OBLIGATORIO)
+**Response (201 Created)**
+```json
+{
+  "id": 42,
+  "student": 3,
+  "task": 10,
+  "status": "in_progress",
+  "started_at": null,
+  "completed_at": null,
+  "notes": "",
+  "task_detail": {
+    "id": 10,
+    "block": 1,
+    "title": "Resolver 5 ejercicios de listas",
+    "instructions": "Usa comprensión de listas y documenta tu solución.",
+    "resources": null,
+    "estimated_minutes": 20,
+    "order": 1,
+    "status": "available",
+    "created_at": "2026-02-14T05:40:00Z",
+    "updated_at": "2026-02-14T05:40:00Z"
+  }
+}
+```
+
+## E) Instalación y ejecución local
 
 Este proyecto usa **Python + virtual environment (venv)**.
 
@@ -116,205 +135,112 @@ Este proyecto usa **Python + virtual environment (venv)**.
 
 ### 1. Crear y activar el virtual environment
 
-En macOS / Linux:
-
+macOS / Linux:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
-
-En Windows (PowerShell):
-
+Windows (PowerShell):
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 ```
 
 ### 2. Instalar dependencias
-
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 3. Ejecutar migraciones
-
 ```bash
 cd api
-python manage.py migrate
+python3 manage.py migrate
 ```
 
 ### 4. Correr el servidor
-
 ```bash
-python manage.py runserver
+python3 manage.py runserver
 ```
 
 Servidor local:
 - API base DRF: `http://127.0.0.1:8000/api/`
 - Swagger UI: `http://127.0.0.1:8000/api/swagger/`
 - ReDoc: `http://127.0.0.1:8000/api/redoc/`
-- Heath: `http://127.0.0.1:8000/api/health/`
+- Health: `http://127.0.0.1:8000/api/health/`
 
-Nota importante sobre secretos:
+Notas:
+- Se usa SQLite en desarrollo.
 - No subas `.env` ni credenciales reales al repositorio.
-- En esta etapa inicial se usa SQLite y configuración local.
 
 ## F) Tecnologías elegidas
 
-Stack seleccionado y justificación breve:
-
-- Framework: Django + Django REST Framework.
-  Razón: estructura sólida tipo industria, autenticación y permisos robustos, buen ecosistema.
-- Lenguaje/runtime: Python.
-  Razón: velocidad de desarrollo y claridad.
-- Documentación: drf-spectacular (OpenAPI/Swagger).
-  Razón: documentación automática desde el código.
-- Base de datos (actual): SQLite.
-  Base de datos (sugerida a futuro): PostgreSQL.
+- Framework: Django + Django REST Framework (DRF)
+- Documentación: drf-spectacular (OpenAPI/Swagger)
+- Base de datos dev: SQLite (sugerida a futuro: PostgreSQL)
 
 ---
 
-Este README está pensado como versión inicial. El contrato y las reglas pueden ajustarse conforme se implementen los endpoints.
-
-## Actividad 2.1 — Documentacion tecnica: rutas y controladores
-
-Esta seccion documenta la configuracion tecnica minima de **rutas (endpoints)** y **controladores** usando Django REST Framework (DRF) con ViewSets y routers.
+## Actividad 2.1 — Documentación técnica: rutas y controladores
 
 ### A) Estructura y responsabilidades
 
-Estructura relevante del proyecto:
-- `api/config/urls.py`: rutas principales del proyecto (registro global).
-- `api/health/views.py`: controlador simple para `GET /api/health/`.
-- `api/health/urls.py`: rutas del recurso health.
-- `api/users/models.py`: modelo `UserProfile`.
-- `api/users/serializers.py`: serializer de usuarios.
-- `api/users/views.py`: controlador `UserViewSet`.
-- `api/users/urls.py`: router DRF para usuarios.
-- `api/tasks/models.py`: modelo `Task`.
-- `api/tasks/serializers.py`: serializer de tareas.
-- `api/tasks/views.py`: controlador `TaskViewSet`.
-- `api/tasks/urls.py`: router DRF para tareas.
+- `api/config/urls.py`: enrutado global.
+- `api/health/views.py`, `api/health/urls.py`: healthcheck `GET /api/health/`.
+- `api/tasks/models.py`: `StudyTopic`, `StudyBlock`, `BlockTask`.
+- `api/tasks/serializers.py`: serializers para topics, blocks y block-tasks.
+- `api/tasks/views.py`: viewsets `StudyTopicViewSet`, `StudyBlockViewSet`, `BlockTaskViewSet`.
+- `api/tasks/urls.py`: router DRF para `/topics/`, `/blocks/`, `/block-tasks/`.
+- `api/users/models.py`: `Student`, `StudentTaskProgress`.
+- `api/users/serializers.py`: serializers de usuario, estudiante y progreso.
+- `api/users/views.py`: viewsets `UserViewSet`, `StudentViewSet`, `StudentTaskProgressViewSet`.
+- `api/users/urls.py`: router DRF para `/users/`, `/students/`, `/student-task-progress/`.
 
-Separacion aplicada:
+Separación aplicada:
 - Rutas en `*/urls.py`.
-- Logica/controladores en `*/views.py`.
-- Transformacion/validacion en `*/serializers.py`.
+- Lógica/controladores en `*/views.py`.
+- Transformación/validación en `*/serializers.py`.
 - Estructura de datos en `*/models.py`.
 
-### B) Paso a paso tecnico (mini tutorial)
+### B) Paso a paso técnico
 
-1. Se definieron los modelos base por recurso:
-   `UserProfile` en `api/users/models.py` y `Task` en `api/tasks/models.py`.
-2. Se crearon serializers DRF por recurso:
-   `UserSerializer` y `TaskSerializer`.
-3. Se implementaron controladores con DRF ViewSets:
-   `UserViewSet` y `TaskViewSet` en `api/users/views.py` y `api/tasks/views.py`.
-4. Se registraron rutas con routers DRF:
-   `DefaultRouter()` en `api/users/urls.py` y `api/tasks/urls.py`.
-5. Se conectaron todas las rutas en el registro global:
-   `api/config/urls.py` incluye:
-   - `path("api/health", include("health.urls"))`
-   - `path("api/", include("users.urls"))`
-   - `path("api/", include("tasks.urls"))`
+1) Definir modelos por recurso (topics, blocks, block-tasks, students, progress).  
+2) Crear serializers DRF por recurso.  
+3) Implementar viewsets para CRUD + filtros/búsqueda.  
+4) Registrar rutas con `DefaultRouter()` en cada app y agregarlas en `config/urls.py`.  
+5) Generar y aplicar migraciones: `python3 manage.py makemigrations && python3 manage.py migrate`.  
+6) Documentar con drf-spectacular (Swagger/ReDoc) y probar en `/api/swagger/` o `/api/redoc/`.
 
-### C) Endpoints implementados (minimo requerido)
+### C) Endpoints implementados (mínimo)
 
-1) Healthcheck
-- Metodo: `GET`
+1) Healthcheck  
+- Método: `GET`  
 - Ruta: `/api/health/`
-- Que hace: confirma que la API responde.
-- Respuesta JSON ejemplo:
 
-```json
-{
-  "status": "ok",
-  "service": "taskmaster-api",
-}
-```
+2) Study Topics  
+- `GET /api/topics/`  
+- `POST /api/topics/`  
+- `GET /api/topics/{id}/`  
+- `PATCH /api/topics/{id}/`
 
-2) Listar usuarios
-- Metodo: `GET`
-- Ruta: `/api/users/`
-- Que hace: devuelve la lista de usuarios.
-- Respuesta JSON ejemplo (estructura DRF):
+3) Study Blocks  
+- `GET /api/blocks/`  
+- `POST /api/blocks/`  
+- `GET /api/blocks/{id}/`  
+- `PATCH /api/blocks/{id}/`
 
-```json
-{
-  "count": 0,
-  "next": null,
-  "previous": null,
-  "results": []
-}
-```
+4) Block Tasks  
+- `GET /api/block-tasks/`  
+- `POST /api/block-tasks/`  
+- `GET /api/block-tasks/{id}/`  
+- `PATCH /api/block-tasks/{id}/`
 
-3) Crear tarea
-- Metodo: `POST`
-- Ruta: `/api/tasks/`
-- Que hace: crea una tarea nueva.
-- Request JSON ejemplo:
+5) Students  
+- `GET /api/students/`  
+- `POST /api/students/`  
+- `GET /api/students/{id}/`  
+- `PATCH /api/students/{id}/`
 
-```json
-{
-  "title": "Primera tarea",
-  "created_by": 1,
-  "priority": "medium",
-  "status": "pending"
-}
-```
-
-- Response JSON ejemplo (201 Created):
-
-```json
-{
-  "id": 1,
-  "title": "Primera tarea",
-  "status": "pending",
-  "priority": "medium",
-  "created_by": 1,
-  "assigned_to": null,
-  "is_locked": false
-}
-```
-
-### D) Como probar los endpoints
-
-1. Levantar el servidor (desde `api/`):
-
-```bash
-python3 manage.py migrate
-python3 manage.py runserver
-```
-
-2. URL base local:
-- `http://127.0.0.1:8000`
-
-3. Pruebas rapidas con curl:
-
-Ping:
-
-```bash
-curl -i http://127.0.0.1:8000/api/ping/
-```
-
-Listar usuarios:
-
-```bash
-curl -i http://127.0.0.1:8000/api/users/
-```
-
-Crear tarea:
-
-```bash
-curl -i -X POST http://127.0.0.1:8000/api/tasks/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Primera tarea",
-    "created_by": 1,
-    "priority": "medium",
-    "status": "pending"
-  }'
-```
-
-Tip: tambien puedes usar Swagger UI en:
-- `http://127.0.0.1:8000/api/schema/swagger-ui/`
-
+6) Student Task Progress  
+- `GET /api/student-task-progress/`  
+- `POST /api/student-task-progress/`  
+- `PATCH /api/student-task-progress/{id}/`

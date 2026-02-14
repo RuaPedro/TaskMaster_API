@@ -13,7 +13,6 @@ export class UserService
                 headers: {
                     "Content-Type": "application/json"
                 }
-                // body JSON.stringify({username: 'Pedro}) si es para post 
             });
 
             if (!response.ok) {
@@ -23,7 +22,7 @@ export class UserService
 
             return response.json();
         }
-        catch
+        catch (error)
         {
             throw new Error(`Internal error: ${error}`);
         }

@@ -17,6 +17,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from rest_framework.routers import DefaultRouter
+
+from tasks.urls import router as tasks_router
+from users.urls import router as users_router
+
+# Router unificado para exponer todos los endpoints bajo /api/
+api_router = DefaultRouter()
+api_router.registry.extend(tasks_router.registry)
+api_router.registry.extend(users_router.registry)
 
 urlpatterns = [
     # Admin
@@ -29,5 +38,5 @@ urlpatterns = [
     
     # API Endpoints
     path('api/health/', include('health.urls')),
-    path('api/', include('tasks.urls')),
+    path('api/', include(api_router.urls)),
 ]

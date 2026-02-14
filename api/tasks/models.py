@@ -2,190 +2,105 @@ from django.conf import settings
 from django.db import models
 
 
-class Project(models.Model):
-    name = models.CharField(
-        max_length=120,
-        unique=True,
-        help_text="Nombre del proyecto",
+class StudyTopic(models.Model):
+    """Tema general de estudio (ej. Python Básico, Álgebra)."""
+
+    class Difficulty(models.TextChoices):
+        BEGINNER = "beginner", "Principiante"
+        INTERMEDIATE = "intermediate", "Intermedio"
+        ADVANCED = "advanced", "Avanzado"
+
+    name = models.CharField(max_length=120, unique=True, help_text="Nombre del tema de estudio")
+    description = models.TextField(blank=True, help_text="Descripción breve del tema")
+    difficulty = models.CharField(
+        max_length=15,
+        choices=Difficulty.choices,
+        default=Difficulty.BEGINNER,
+        help_text="Nivel sugerido de dificultad",
     )
-    description = models.TextField(
-        blank=True,
-        null=True,
-        help_text="Descripcion del proyecto",
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        help_text="Fecha de creacion del proyecto",
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        help_text="Fecha de ultima actualizacion",
-    )
+    is_active = models.BooleanField(default=True, help_text="Permite ocultar un tema sin borrarlo")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "Proyecto"
-        verbose_name_plural = "Proyectos"
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:
-        return self.name
-
-
-class Tag(models.Model):
-    name = models.CharField(
-        max_length=50,
-        unique=True,
-        help_text="Nombre unico de la etiqueta",
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        help_text="Fecha de creacion de la etiqueta",
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        help_text="Fecha de ultima actualizacion",
-    )
-
-    class Meta:
-        verbose_name = "Etiqueta"
-        verbose_name_plural = "Etiquetas"
+        verbose_name = "Tema de estudio"
+        verbose_name_plural = "Temas de estudio"
         ordering = ["name"]
 
     def __str__(self) -> str:
         return self.name
 
 
-class Task(models.Model):
+class StudyBlock(models.Model):
+    """Bloque secuencial dentro de un tema."""
+
+    topic = models.ForeignKey(
+        StudyTopic,
+        on_delete=models.CASCADE,
+        related_name="blocks",
+        help_text="Tema al que pertenece el bloque",
+    )
+    number = models.PositiveSmallIntegerField(help_text="Orden dentro del tema (1, 2, 3...).")
+    title = models.CharField(max_length=120, help_text="Título del bloque")
+    description = models.TextField(blank=True, help_text="Descripción del bloque")
+    estimated_minutes = models.PositiveSmallIntegerField(default=30, help_text="Tiempo estimado de estudio")
+    is_published = models.BooleanField(default=True, help_text="Si es falso, el bloque no se expone")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Bloque"
+        verbose_name_plural = "Bloques"
+        ordering = ["topic", "number"]
+        unique_together = ("topic", "number")
+        indexes = [
+            models.Index(fields=["topic", "number"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.topic.name} · Bloque {self.number}"
+
+
+class BlockTask(models.Model):
+    """Tarea concreta dentro de un bloque."""
+
     class Status(models.TextChoices):
-        PENDING = "pending", "Pendiente"
-        IN_PROGRESS = "in_progress", "En progreso"
-        COMPLETED = "completed", "Completada"
+        AVAILABLE = "available", "Disponible"
         ARCHIVED = "archived", "Archivada"
 
-    class Priority(models.TextChoices):
-        LOW = "low", "Baja"
-        MEDIUM = "medium", "Media"
-        HIGH = "high", "Alta"
-        CRITICAL = "critical", "Critica"
-
-    title = models.CharField(
-        max_length=200,
-        help_text="Titulo descriptivo de la tarea",
-    )
-    description = models.TextField(
-        blank=True,
-        null=True,
-        help_text="Descripcion detallada de la tarea",
-    )
-    status = models.CharField(
-        max_length=20,
-        choices=Status.choices,
-        default=Status.PENDING,
-        help_text="Estado actual de la tarea",
-    )
-    priority = models.CharField(
-        max_length=10,
-        choices=Priority.choices,
-        default=Priority.MEDIUM,
-        help_text="Nivel de prioridad de la tarea",
-    )
-    due_date = models.DateTimeField(
-        blank=True,
-        null=True,
-        help_text="Fecha limite para completar la tarea",
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        help_text="Fecha de creacion de la tarea",
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        help_text="Fecha de ultima actualizacion",
-    )
-    completed_at = models.DateTimeField(
-        blank=True,
-        null=True,
-        help_text="Fecha en que se completo la tarea",
-    )
-    is_locked = models.BooleanField(
-        default=False,
-        help_text="Si es True, la tarea no puede ser modificada",
-    )
-    tags = models.CharField(
-        max_length=500,
-        blank=True,
-        help_text="Etiquetas separadas por comas (ej: bug,urgent,backend)",
-    )
-
-    project = models.ForeignKey(
-        Project,
-        on_delete=models.SET_NULL,
+    block = models.ForeignKey(
+        StudyBlock,
+        on_delete=models.CASCADE,
         related_name="tasks",
+        help_text="Bloque al que pertenece la tarea",
+    )
+    title = models.CharField(max_length=200, help_text="Título de la tarea")
+    instructions = models.TextField(help_text="Instrucciones de la tarea")
+    resources = models.JSONField(
         blank=True,
         null=True,
-        help_text="Proyecto al que pertenece la tarea",
+        help_text="Lista o diccionario de recursos (links, IDs de material, etc.)",
     )
-    created_by = models.ForeignKey(
-        "auth.User",
-        on_delete=models.PROTECT,
-        related_name="tasks_created",
-        help_text="Usuario que creo la tarea",
+    estimated_minutes = models.PositiveSmallIntegerField(default=15, help_text="Tiempo estimado para completar")
+    order = models.PositiveSmallIntegerField(default=1, help_text="Posición dentro del bloque")
+    status = models.CharField(
+        max_length=12,
+        choices=Status.choices,
+        default=Status.AVAILABLE,
+        help_text="Estado de publicación de la tarea",
     )
-    assigned_to = models.ForeignKey(
-        "auth.User",
-        on_delete=models.SET_NULL,
-        related_name="tasks_assigned",
-        blank=True,
-        null=True,
-        help_text="Usuario asignado a la tarea",
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "Tarea"
-        verbose_name_plural = "Tareas"
-        ordering = ["-created_at"]
+        verbose_name = "Tarea de bloque"
+        verbose_name_plural = "Tareas de bloque"
+        ordering = ["block", "order", "-created_at"]
+        unique_together = ("block", "order")
         indexes = [
+            models.Index(fields=["block", "order"]),
             models.Index(fields=["status"]),
-            models.Index(fields=["assigned_to"]),
-            models.Index(fields=["created_by"]),
-            models.Index(fields=["priority"]),
         ]
 
     def __str__(self) -> str:
-        return self.title
-
-
-class TaskTag(models.Model):
-    task = models.ForeignKey(
-        Task,
-        on_delete=models.CASCADE,
-        related_name="task_tags",
-        help_text="Tarea asociada",
-    )
-    tag = models.ForeignKey(
-        Tag,
-        on_delete=models.CASCADE,
-        related_name="task_tags",
-        help_text="Etiqueta asociada",
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        help_text="Fecha de creacion de la relacion",
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        help_text="Fecha de ultima actualizacion",
-    )
-
-    class Meta:
-        verbose_name = "Relacion Tarea-Etiqueta"
-        verbose_name_plural = "Relaciones Tarea-Etiqueta"
-        constraints = [
-            models.UniqueConstraint(
-                fields=["task", "tag"],
-                name="unique_task_tag",
-            )
-        ]
-
-    def __str__(self) -> str:
-        return f"{self.task_id}:{self.tag_id}"
+        return f"{self.block} · {self.title}"
