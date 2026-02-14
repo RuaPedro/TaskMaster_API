@@ -32,7 +32,7 @@ body {
   box-shadow: var(--tm-shadow);
 }
 
-.brand__logo {
+.brand-logo {
   width: 28px;
   height: 28px;
 }

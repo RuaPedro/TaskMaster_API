@@ -1,30 +1,51 @@
 import { init as loginInit } from "../pages/login/login.js";
 import { init as homeInit } from "../pages/home/home.js";
+import { init as usersInit } from "../pages/users/users.js";
+import { init as studentsInit } from "../pages/students/students.js";
+import { init as progressInit } from "../pages/progress/progress.js";
+import { init as topicsInit } from "../pages/topics/topics.js";
+import { init as blocksInit } from "../pages/blocks/blocks.js";
+import { init as tasksInit } from "../pages/tasks/tasks.js";
 
-// Tabla de páginas con su template y función init
 const PAGES = {
-  login: { label: "Login", path: "pages/login/login.html", init: loginInit },
-  home: { label: "Home", path: "pages/home/home.html", init: homeInit },
+  login:   { label: "Login",     path: "pages/login/login.html",     init: loginInit,    requiresAuth: false },
+  home:    { label: "Home",      path: "pages/home/home.html",       init: homeInit,     requiresAuth: true },
+  topics:  { label: "Temas",     path: "pages/topics/topics.html",   init: topicsInit,   requiresAuth: true },
+  blocks:  { label: "Bloques",   path: "pages/blocks/blocks.html",   init: blocksInit,   requiresAuth: true },
+  tasks:   { label: "Tareas",    path: "pages/tasks/tasks.html",     init: tasksInit,    requiresAuth: true },
+  students:{ label: "Estudiantes",path: "pages/students/students.html", init: studentsInit, requiresAuth: true },
+  progress:{ label: "Progreso",  path: "pages/progress/progress.html", init: progressInit, requiresAuth: true },
+  users:   { label: "Usuarios",  path: "pages/users/users.html",     init: usersInit,    requiresAuth: true },
 };
 
 let currentPage = "login";
 
 export function init() {
-  console.log("inicializando la navegación");
-  buildNav();              // pinta el navbar
-  displayPage("login");    // arranca en login
+  console.log("inicializando la navegacion");
+  refreshNav();
+  displayPage(isLoggedIn() ? "home" : "login");
+
   window.addEventListener("tm:navigate", (e) => {
     const target = e.detail?.page || "login";
-    displayPage(target);   // navegación (ej. desde login)
-    const authBtn = document.getElementById("auth-btn");
-    if (authBtn) updateAuthButton(authBtn);
+    displayPage(target);
+    refreshNav();
   });
+
+  window.addEventListener("tm:auth-changed", () => {
+    refreshNav();
+    displayPage(isLoggedIn() ? "home" : "login");
+  });
+}
+
+function refreshNav() {
+  buildNav();
 }
 
 function buildNav() {
   const nav = document.getElementById("app-nav");
   if (!nav) return;
 
+  const logged = isLoggedIn();
   nav.innerHTML = "";
 
   const left = document.createElement("div");
@@ -33,22 +54,23 @@ function buildNav() {
   const right = document.createElement("div");
   right.className = "ms-auto";
 
-  // Enlaces a la izquierda (por ahora solo Home)
-  ["home"].forEach((key) => {
-    const page = PAGES[key];
-    if (!page) return;
-    const link = document.createElement("a");
-    link.href = "#";
-    link.textContent = page.label;
-    link.className = "nav-link d-inline-block";
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-      displayPage(key);
+  const order = ["home", "topics", "blocks", "tasks", "students", "progress", "users"];
+  if (logged) {
+    order.forEach((key) => {
+      const page = PAGES[key];
+      if (!page) return;
+      const link = document.createElement("a");
+      link.href = "#";
+      link.textContent = page.label;
+      link.className = "nav-link d-inline-block";
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        displayPage(key);
+      });
+      left.appendChild(link);
     });
-    left.appendChild(link);
-  });
+  }
 
-  // Botón de login/logout a la derecha
   const authBtn = document.createElement("button");
   authBtn.id = "auth-btn";
   authBtn.className = "btn btn-outline-primary btn-sm";
@@ -61,19 +83,23 @@ function buildNav() {
 }
 
 function updateAuthButton(btn) {
-  const logged = Boolean(localStorage.getItem("tm_user"));
-  btn.textContent = logged ? "Logout" : "Login";
+  btn.textContent = isLoggedIn() ? "Logout" : "Login";
 }
 
 async function displayPage(pageKey) {
+  const logged = isLoggedIn();
   const page = PAGES[pageKey];
-  if (!page) return;
+  const fallback = logged ? "home" : "login";
+  if (!page || (page.requiresAuth && !logged)) {
+    if (pageKey !== fallback) return displayPage(fallback);
+    return;
+  }
 
   const main = document.getElementById("app-content");
   if (!main) return;
 
   try {
-    const response = await fetch(page.path);      // carga el template HTML
+    const response = await fetch(page.path);
     const html = await response.text();
 
     const temp = document.createElement("div");
@@ -82,24 +108,27 @@ async function displayPage(pageKey) {
     if (!template) throw new Error(`No se encontró <template> en ${page.path}`);
 
     main.innerHTML = "";
-    main.appendChild(template.content.cloneNode(true)); // inserta contenido
+    main.appendChild(template.content.cloneNode(true));
 
     currentPage = pageKey;
-    if (typeof page.init === "function") page.init();   // inicializa JS de la página
+    if (typeof page.init === "function") page.init();
   } catch (err) {
     console.error(err);
-    main.innerHTML = `<div class="alert alert-danger">No se pudo cargar la página ${pageKey}</div>`;
+    main.innerHTML = `<div class="alert alert-danger">No se pudo cargar la pagina ${pageKey}</div>`;
   }
 }
 
 function handleAuthClick(e) {
-  const logged = Boolean(localStorage.getItem("tm_user"));
+  const logged = isLoggedIn();
   if (logged) {
-    localStorage.removeItem("tm_user");  // logout
-    updateAuthButton(e.currentTarget);
-    displayPage("login");
+    localStorage.removeItem("tm_user");
+    window.dispatchEvent(new Event("tm:auth-changed"));
   } else {
-    displayPage("login");                // ir a login si no hay sesión
+    displayPage("login");
   }
   updateAuthButton(e.currentTarget);
+}
+
+function isLoggedIn() {
+  return Boolean(localStorage.getItem("tm_user"));
 }

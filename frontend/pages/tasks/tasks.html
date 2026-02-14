@@ -1,0 +1,165 @@
+<template>
+  <div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h2 class="h4 mb-1">Tareas</h2>
+        <p class="text-muted mb-0">lista de tareas.</p>
+      </div>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#taskCreateModal">
+        <i class="fas fa-plus me-1"></i> Nueva tarea
+      </button>
+    </div>
+
+    <div id="tasks-alert"></div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle" id="tasks-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Bloque</th>
+            <th>Título</th>
+            <th>Orden</th>
+            <th>Minutos</th>
+            <th>Estado</th>
+            <th class="text-end">Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Crear -->
+  <div class="modal fade" id="taskCreateModal" tabindex="-1" aria-labelledby="taskCreateLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <form class="modal-content" id="task-create-form" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="taskCreateLabel">Nueva tarea</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Bloque</label>
+              <select class="form-select" name="block" required></select>
+              <div class="invalid-feedback">Selecciona bloque.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Título</label>
+              <input type="text" class="form-control" name="title" required />
+              <div class="invalid-feedback">Ingresa título.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Orden</label>
+              <input type="number" class="form-control" name="order" required />
+              <div class="invalid-feedback">Ingresa orden.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Minutos estimados</label>
+              <input type="number" class="form-control" name="estimated_minutes" min="0" />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Instrucciones</label>
+              <textarea class="form-control" name="instructions" rows="2"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Recursos</label>
+              <input type="text" class="form-control" name="resources" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Estado</label>
+              <select class="form-select" name="status" required>
+                <option value="">Selecciona</option>
+                <option value="available">Disponible</option>
+                <option value="archived">Archivada</option>
+              </select>
+              <div class="invalid-feedback">Selecciona estado.</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Editar -->
+  <div class="modal fade" id="taskEditModal" tabindex="-1" aria-labelledby="taskEditLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <form class="modal-content" id="task-edit-form" novalidate>
+        <input type="hidden" name="id" />
+        <div class="modal-header">
+          <h5 class="modal-title" id="taskEditLabel">Editar tarea</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Bloque</label>
+              <select class="form-select" name="block" required></select>
+              <div class="invalid-feedback">Selecciona bloque.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Título</label>
+              <input type="text" class="form-control" name="title" required />
+              <div class="invalid-feedback">Ingresa título.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Orden</label>
+              <input type="number" class="form-control" name="order" required />
+              <div class="invalid-feedback">Ingresa orden.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Minutos estimados</label>
+              <input type="number" class="form-control" name="estimated_minutes" min="0" />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Instrucciones</label>
+              <textarea class="form-control" name="instructions" rows="2"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Recursos</label>
+              <input type="text" class="form-control" name="resources" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Estado</label>
+              <select class="form-select" name="status" required>
+                <option value="">Selecciona</option>
+                <option value="available">Disponible</option>
+                <option value="archived">Archivada</option>
+              </select>
+              <div class="invalid-feedback">Selecciona estado.</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Actualizar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Eliminar -->
+  <div class="modal fade" id="taskDeleteModal" tabindex="-1" aria-labelledby="taskDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="taskDeleteLabel">Eliminar tarea</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="task-delete-id" />
+          <p class="mb-0">¿Seguro que deseas eliminar esta tarea?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="task-delete-confirm">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

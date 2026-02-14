@@ -1,5 +1,5 @@
-import { User } from "../../models/user.model.js";
-import { UserService } from "../../services/user.service.js";
+import { User } from "../../models/users/user.model.js";
+import { UserService } from "../../services/users/user.service.js";
 
 let users = [];
 
@@ -25,13 +25,14 @@ function setupForm() {
         toggleLoading(btn, spinner, label, true);
 
         const username = form.username.value.trim();
-        const password = form.password.value; // no se valida contra el backend en este demo
+        const password = form.password.value; // demo: no se valida contra backend
 
         const match = users.find(u => u.username === username);
         if (match) {
             localStorage.setItem('tm_user', JSON.stringify(match));
+            window.dispatchEvent(new CustomEvent('tm:auth-changed', { detail: { user: match } }));
             showAlert('Bienvenido ' + (match.first_name || match.username), 'success');
-            // Navegar a home después de un pequeño delay para ver el mensaje
+            // Navegar a home despues de un pequeno delay para ver el mensaje
             setTimeout(() => {
                 window.dispatchEvent(new CustomEvent('tm:navigate', { detail: { page: 'home' } }));
             }, 400);
@@ -48,7 +49,6 @@ function getUsers() {
 
     service.getAll()
         .then(data => {
-            // API puede devolver .results (paginado) o lista simple
             const raw = Array.isArray(data?.results) ? data.results : data;
             users = raw.map(userParams => new User(userParams));
             displayUsers();

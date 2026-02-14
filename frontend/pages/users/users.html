@@ -1,0 +1,162 @@
+<template>
+  <div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h2 class="h4 mb-1">Usuarios</h2>
+        <p class="text-muted mb-0">Lista de usuarios.</p>
+      </div>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userCreateModal">
+        <i class="fas fa-plus me-1"></i> Nuevo usuario
+      </button>
+    </div>
+
+    <div id="users-alert"></div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle" id="users-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Nombre</th>
+            <th>Staff</th>
+            <th>Superuser</th>
+            <th class="text-end">Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Crear -->
+  <div class="modal fade" id="userCreateModal" tabindex="-1" aria-labelledby="userCreateLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form class="modal-content" id="user-create-form" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="userCreateLabel">Nuevo usuario</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control" name="username" required />
+            <div class="invalid-feedback">Ingresa username.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" name="email" required />
+            <div class="invalid-feedback">Ingresa email.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" class="form-control" name="first_name" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Apellidos</label>
+            <input type="text" class="form-control" name="last_name" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" name="password" required />
+            <div class="invalid-feedback">Ingresa password.</div>
+          </div>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="is_staff" id="user-staff-create" />
+              <label class="form-check-label" for="user-staff-create">Staff</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="is_superuser" id="user-super-create" />
+              <label class="form-check-label" for="user-super-create">Superuser</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="is_active" id="user-active-create" checked />
+              <label class="form-check-label" for="user-active-create">Activo</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Editar -->
+  <div class="modal fade" id="userEditModal" tabindex="-1" aria-labelledby="userEditLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form class="modal-content" id="user-edit-form" novalidate>
+        <input type="hidden" name="id" />
+        <div class="modal-header">
+          <h5 class="modal-title" id="userEditLabel">Editar usuario</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control" name="username" required />
+            <div class="invalid-feedback">Ingresa username.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" name="email" required />
+            <div class="invalid-feedback">Ingresa email.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" class="form-control" name="first_name" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Apellidos</label>
+            <input type="text" class="form-control" name="last_name" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password (opcional)</label>
+            <input type="password" class="form-control" name="password" placeholder="Dejar vacío para no cambiar" />
+          </div>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="is_staff" id="user-staff-edit" />
+              <label class="form-check-label" for="user-staff-edit">Staff</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="is_superuser" id="user-super-edit" />
+              <label class="form-check-label" for="user-super-edit">Superuser</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="is_active" id="user-active-edit" />
+              <label class="form-check-label" for="user-active-edit">Activo</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Actualizar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Eliminar -->
+  <div class="modal fade" id="userDeleteModal" tabindex="-1" aria-labelledby="userDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="userDeleteLabel">Eliminar usuario</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="user-delete-id" />
+          <p class="mb-0">¿Seguro que deseas eliminar este usuario?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="user-delete-confirm">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
