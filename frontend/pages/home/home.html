@@ -1,8 +1,62 @@
 <template>
-  <div class="container py-4">
-    <div class="text-center">
-      <h1 class="display-5 fw-bold">Bienvenido</h1>
-      <p class="lead text-muted">@home</p>
+  <div class="container-fluid py-4 home-page">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+      <div>
+        <h1 class="h4 mb-1">Bienvenido</h1>
+        <p class="text-muted small mb-0">Regístrate como estudiante y empieza con los cursos.</p>
+      </div>
+      <div class="d-flex gap-2">
+        <span id="student-status" class="badge bg-secondary-subtle text-secondary">No registrado</span>
+        <button class="btn btn-primary btn-sm" id="open-student-modal">Registrarme</button>
+      </div>
+    </div>
+
+    <div class="row g-4 align-items-start">
+      <div class="col-12 col-xl-8">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h2 class="h5 mb-1">Cursos disponibles</h2>
+            <p class="text-muted small mb-0">Selecciona un tema para ver sus bloques y tareas.</p>
+          </div>
+        </div>
+        <div id="topics-cards" class="row g-3"></div>
+      </div>
+      <div class="col-12 col-xl-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h2 class="h6 mb-3">Tu progreso</h2>
+            <div id="progress-list" class="list-group list-group-flush small"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Se removieron bloques/tareas en home -->
+
+    <!-- Modal registro estudiante -->
+    <div class="modal fade" id="studentModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <form class="modal-content" id="student-form" novalidate>
+          <div class="modal-header">
+            <h5 class="modal-title">Registrarme como estudiante</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Nombre completo</label>
+              <input type="text" class="form-control" name="full_name" required />
+              <div class="invalid-feedback">Ingresa tu nombre completo.</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary" id="student-btn">
+              <span class="btn-label">Registrarme</span>
+              <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </template>

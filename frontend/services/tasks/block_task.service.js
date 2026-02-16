@@ -2,7 +2,7 @@ import { environment } from "../../environment.js";
 
 export class BlockTaskService
 {
-    baseUrl = `${environment.apiUrl}/block-tasks`;
+    baseUrl = `${environment.apiUrl}/block-tasks/`;
 
     async getAll()
     {

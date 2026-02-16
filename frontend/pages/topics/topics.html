@@ -1,34 +1,117 @@
 <template>
-  <div class="container py-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div>
-        <h2 class="h4 mb-1">Temas de estudio</h2>
-        <p class="text-muted mb-0">Temas de estudio disponibles.</p>
+  <div class="container-fluid py-3 topics-page">
+    <div class="row g-3">
+      <div class="col-lg-5">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h2 class="h5 mb-1">Temas</h2>
+                <p class="text-muted mb-0">Selecciona un tema para ver sus bloques y tareas.</p>
+              </div>
+              <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#topicCreateModal">
+                <i class="fas fa-plus me-1"></i> Nuevo tema
+              </button>
+            </div>
+
+            <div id="topics-alert" class="mb-2"></div>
+
+            <div class="table-responsive topic-table">
+              <table class="table table-hover align-middle mb-0" id="topics-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Dificultad</th>
+                    <th>Activo</th>
+                    <th class="text-end">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#topicCreateModal">
-        <i class="fas fa-plus me-1"></i> Nuevo tema
-      </button>
-    </div>
 
-    <div id="topics-alert"></div>
+      <div class="col-lg-7">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <p class="text-muted small mb-1">Detalle de tema</p>
+                <h3 class="h5 mb-1" id="detail-name">Selecciona un tema</h3>
+                <p class="text-muted mb-2" id="detail-description">Para ver la estructura completa, elige un tema de la lista.</p>
+                <div class="d-flex flex-wrap gap-2">
+                  <span class="badge bg-light text-secondary" id="detail-difficulty">-</span>
+                  <span class="badge bg-light text-secondary" id="detail-status">-</span>
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary btn-sm" id="topic-edit-shortcut" disabled>
+                  <i class="fas fa-pen me-1"></i> Editar
+                </button>
+                <button class="btn btn-primary btn-sm" id="add-block-btn" disabled>
+                  <i class="fas fa-plus me-1"></i> Bloque
+                </button>
+              </div>
+            </div>
 
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0" id="topics-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Dificultad</th>
-            <th>Activo</th>
-            <th class="text-end">Acciones</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+            <div class="inline-section mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                  <h4 class="h6 mb-0">Bloques del tema</h4>
+                  <small class="text-muted">Define la estructura y tiempos.</small>
+                </div>
+              </div>
+              <div class="table-responsive inline-table">
+                <table class="table table-sm align-middle mb-0" id="blocks-inline-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Título</th>
+                      <th>Min</th>
+                      <th>Estado</th>
+                      <th class="text-end">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="inline-section">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                  <h4 class="h6 mb-0">Tareas del bloque</h4>
+                  <small class="text-muted" id="tasks-block-label">Selecciona un bloque para ver sus tareas.</small>
+                </div>
+                <button class="btn btn-outline-primary btn-sm" id="add-task-btn" disabled>
+                  <i class="fas fa-plus me-1"></i> Tarea
+                </button>
+              </div>
+              <div class="table-responsive inline-table">
+                <table class="table table-sm align-middle mb-0" id="tasks-inline-table">
+                  <thead>
+                    <tr>
+                      <th>Orden</th>
+                      <th>Título</th>
+                      <th>Min</th>
+                      <th>Estado</th>
+                      <th class="text-end">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Crear -->
+  <!-- Crear Tema -->
   <div class="modal fade" id="topicCreateModal" tabindex="-1" aria-labelledby="topicCreateLabel" aria-hidden="true">
     <div class="modal-dialog">
       <form class="modal-content" id="topic-create-form" novalidate>
@@ -50,9 +133,9 @@
             <label class="form-label">Dificultad</label>
             <select class="form-select" name="difficulty" required>
               <option value="">Selecciona</option>
-              <option value="easy">Fácil</option>
-              <option value="medium">Media</option>
-              <option value="hard">Difícil</option>
+              <option value="beginner">Principiante</option>
+              <option value="intermediate">Intermedio</option>
+              <option value="advanced">Avanzado</option>
             </select>
             <div class="invalid-feedback">Selecciona dificultad.</div>
           </div>
@@ -69,7 +152,7 @@
     </div>
   </div>
 
-  <!-- Editar -->
+  <!-- Editar Tema -->
   <div class="modal fade" id="topicEditModal" tabindex="-1" aria-labelledby="topicEditLabel" aria-hidden="true">
     <div class="modal-dialog">
       <form class="modal-content" id="topic-edit-form" novalidate>
@@ -92,9 +175,9 @@
             <label class="form-label">Dificultad</label>
             <select class="form-select" name="difficulty" required>
               <option value="">Selecciona</option>
-              <option value="easy">Fácil</option>
-              <option value="medium">Media</option>
-              <option value="hard">Difícil</option>
+              <option value="beginner">Principiante</option>
+              <option value="intermediate">Intermedio</option>
+              <option value="advanced">Avanzado</option>
             </select>
             <div class="invalid-feedback">Selecciona dificultad.</div>
           </div>
@@ -111,7 +194,7 @@
     </div>
   </div>
 
-  <!-- Eliminar -->
+  <!-- Eliminar Tema -->
   <div class="modal fade" id="topicDeleteModal" tabindex="-1" aria-labelledby="topicDeleteLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -126,6 +209,239 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
           <button type="button" class="btn btn-danger" id="topic-delete-confirm">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Crear Bloque -->
+  <div class="modal fade" id="topicBlockCreateModal" tabindex="-1" aria-labelledby="blockCreateLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form class="modal-content" id="topic-block-create-form" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="blockCreateLabel">Nuevo bloque</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id" />
+          <input type="hidden" name="topic" id="block-topic-id" />
+          <p class="text-muted small mb-3" id="block-topic-label">Tema seleccionado: -</p>
+          <div class="mb-3">
+            <label class="form-label">Número</label>
+            <input type="number" class="form-control" name="number" required />
+            <div class="invalid-feedback">Ingresa número.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Título</label>
+            <input type="text" class="form-control" name="title" required />
+            <div class="invalid-feedback">Ingresa título.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-control" name="description" rows="2"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Minutos estimados</label>
+            <input type="number" class="form-control" name="estimated_minutes" min="0" />
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" name="is_published" id="block-published-create" />
+            <label class="form-check-label" for="block-published-create">Publicado</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Editar Bloque -->
+  <div class="modal fade" id="topicBlockEditModal" tabindex="-1" aria-labelledby="blockEditLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form class="modal-content" id="topic-block-edit-form" novalidate>
+        <input type="hidden" name="id" />
+        <input type="hidden" name="topic" />
+        <div class="modal-header">
+          <h5 class="modal-title" id="blockEditLabel">Editar bloque</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small mb-3" id="block-edit-topic-label">Tema seleccionado: -</p>
+          <div class="mb-3">
+            <label class="form-label">Número</label>
+            <input type="number" class="form-control" name="number" required />
+            <div class="invalid-feedback">Ingresa número.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Título</label>
+            <input type="text" class="form-control" name="title" required />
+            <div class="invalid-feedback">Ingresa título.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-control" name="description" rows="2"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Minutos estimados</label>
+            <input type="number" class="form-control" name="estimated_minutes" min="0" />
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" name="is_published" id="block-published-edit" />
+            <label class="form-check-label" for="block-published-edit">Publicado</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Actualizar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Eliminar Bloque -->
+  <div class="modal fade" id="topicBlockDeleteModal" tabindex="-1" aria-labelledby="blockDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="blockDeleteLabel">Eliminar bloque</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="block-delete-id" />
+          <p class="mb-0">¿Seguro que deseas eliminar este bloque?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="block-delete-confirm">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Crear Tarea -->
+  <div class="modal fade" id="topicTaskCreateModal" tabindex="-1" aria-labelledby="taskCreateLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <form class="modal-content" id="topic-task-create-form" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="taskCreateLabel">Nueva tarea</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="block" id="task-block-id" />
+          <p class="text-muted small mb-3" id="task-block-label">Bloque seleccionado: -</p>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Orden</label>
+              <input type="number" class="form-control" name="order" required />
+              <div class="invalid-feedback">Ingresa orden.</div>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label">Título</label>
+              <input type="text" class="form-control" name="title" required />
+              <div class="invalid-feedback">Ingresa título.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Minutos estimados</label>
+              <input type="number" class="form-control" name="estimated_minutes" min="0" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Estado</label>
+              <select class="form-select" name="status" required>
+                <option value="">Selecciona</option>
+                <option value="available">Disponible</option>
+                <option value="archived">Archivada</option>
+              </select>
+              <div class="invalid-feedback">Selecciona estado.</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Instrucciones</label>
+              <textarea class="form-control" name="instructions" rows="2"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Recursos</label>
+              <input type="text" class="form-control" name="resources" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Editar Tarea -->
+  <div class="modal fade" id="topicTaskEditModal" tabindex="-1" aria-labelledby="taskEditLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <form class="modal-content" id="topic-task-edit-form" novalidate>
+        <input type="hidden" name="id" />
+        <input type="hidden" name="block" />
+        <div class="modal-header">
+          <h5 class="modal-title" id="taskEditLabel">Editar tarea</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small mb-3" id="task-edit-block-label">Bloque seleccionado: -</p>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Orden</label>
+              <input type="number" class="form-control" name="order" required />
+              <div class="invalid-feedback">Ingresa orden.</div>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label">Título</label>
+              <input type="text" class="form-control" name="title" required />
+              <div class="invalid-feedback">Ingresa título.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Minutos estimados</label>
+              <input type="number" class="form-control" name="estimated_minutes" min="0" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Estado</label>
+              <select class="form-select" name="status" required>
+                <option value="">Selecciona</option>
+                <option value="available">Disponible</option>
+                <option value="archived">Archivada</option>
+              </select>
+              <div class="invalid-feedback">Selecciona estado.</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Instrucciones</label>
+              <textarea class="form-control" name="instructions" rows="2"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Recursos</label>
+              <input type="text" class="form-control" name="resources" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Actualizar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Eliminar Tarea -->
+  <div class="modal fade" id="topicTaskDeleteModal" tabindex="-1" aria-labelledby="taskDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="taskDeleteLabel">Eliminar tarea</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="task-delete-id" />
+          <p class="mb-0">¿Seguro que deseas eliminar esta tarea?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="task-delete-confirm">Eliminar</button>
         </div>
       </div>
     </div>

@@ -8,6 +8,8 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, min_length=6)
+
     class Meta:
         model = User
         fields = [
@@ -18,8 +20,17 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
             "is_active",
             "date_joined",
+            "password",
         ]
         read_only_fields = ["id", "is_active", "date_joined"]
+
+    def create(self, validated_data):
+        password = validated_data.pop("password", None)
+        user = User(**validated_data)
+        if password:
+            user.set_password(password)
+        user.save()
+        return user
 
 
 class StudentSerializer(serializers.ModelSerializer):

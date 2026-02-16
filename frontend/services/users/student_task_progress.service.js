@@ -2,7 +2,7 @@ import { environment } from "../../environment.js";
 
 export class StudentTaskProgressService
 {
-    baseUrl = `${environment.apiUrl}/student-task-progress`
+    baseUrl = `${environment.apiUrl}/student-task-progress/`
 
     async getAll()
     {

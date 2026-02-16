@@ -1,0 +1,100 @@
+<template>
+  <div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <div>
+        <h1 class="h4 mb-1" id="ws-title">Workspace</h1>
+        <p class="text-muted mb-0" id="ws-subtitle">Selecciona una tarea desde el catálogo.</p>
+      </div>
+      <button class="btn btn-outline-secondary btn-sm" id="ws-back-home">Volver a Home</button>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#ws-topics-panel">Temas</button>
+      <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#ws-blocks-panel">Bloques</button>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h2 class="h6 mb-3">Tareas disponibles</h2>
+            <div id="ws-task-list" class="list-group list-group-flush small"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 mt-2">
+      <div class="col-12 col-lg-6 collapse" id="ws-topics-panel">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h2 class="h6 mb-2">Temas</h2>
+            <div id="ws-topic-list" class="list-group list-group-flush small"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6 collapse" id="ws-blocks-panel">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h2 class="h6 mb-2">Bloques</h2>
+            <div id="ws-block-list" class="list-group list-group-flush small"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mt-3">
+      <div class="col-12 col-xl-7">
+        <div class="card shadow-sm h-100">
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+              <div>
+                <h3 class="h6 mb-1" id="ws-task-title">Selecciona una tarea</h3>
+                <p class="text-muted small mb-0" id="ws-task-desc">Aquí podrás escribir código y ver el resultado.</p>
+              </div>
+              <div class="d-flex gap-2 flex-wrap">
+                <div class="btn-group btn-group-sm" role="group" aria-label="Modo editor">
+                  <input type="radio" class="btn-check" name="ws-mode" id="mode-web" autocomplete="off" checked>
+                  <label class="btn btn-outline-secondary" for="mode-web">HTML/CSS/JS</label>
+                  <input type="radio" class="btn-check" name="ws-mode" id="mode-py" autocomplete="off">
+                  <label class="btn btn-outline-secondary" for="mode-py">Python</label>
+                </div>
+                <button class="btn btn-outline-primary btn-sm" id="ws-run-btn">Ejecutar</button>
+                <button class="btn btn-success btn-sm" id="ws-complete-btn" disabled>Marcar completada</button>
+              </div>
+            </div>
+
+            <div class="code-stack flex-grow-1" id="ws-stack-web">
+              <label class="form-label small mb-1">HTML</label>
+              <textarea id="ws-editor-html" class="form-control code-pane code-html flex-fill" spellcheck="false"
+                placeholder="Escribe tu HTML..."></textarea>
+              <label class="form-label small mt-2 mb-1">CSS</label>
+              <textarea id="ws-editor-css" class="form-control code-pane code-css flex-fill" spellcheck="false"
+                placeholder="Escribe tu CSS..."></textarea>
+              <label class="form-label small mt-2 mb-1">JavaScript</label>
+              <textarea id="ws-editor-js" class="form-control code-pane code-js flex-fill" spellcheck="false"
+                placeholder="Escribe tu JS..."></textarea>
+            </div>
+
+            <div class="code-stack flex-grow-1 d-none" id="ws-stack-py">
+              <label class="form-label small">Python</label>
+              <textarea id="ws-editor-py" class="form-control code-pane code-py flex-fill" rows="18" spellcheck="false"
+                placeholder="print('Hola TaskMaster')"></textarea>
+            </div>
+
+            <div id="ws-alerts" class="mt-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-5">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <label class="form-label small">Resultado</label>
+            <iframe id="ws-preview" class="w-100 border rounded" style="min-height: 600px;"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

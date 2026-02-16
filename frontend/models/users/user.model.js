@@ -13,5 +13,7 @@ export class User
         this.is_superuser = params?.is_superuser || false;
         this.date_joined = params?.date_joined || '';
         this.last_login = params?.last_login || '';
+        // Solo para creación; no guardar hashes devueltos
+        this.password = params?.password || '';
     }
 }

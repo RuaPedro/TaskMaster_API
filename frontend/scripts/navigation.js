@@ -6,6 +6,7 @@ import { init as progressInit } from "../pages/progress/progress.js";
 import { init as topicsInit } from "../pages/topics/topics.js";
 import { init as blocksInit } from "../pages/blocks/blocks.js";
 import { init as tasksInit } from "../pages/tasks/tasks.js";
+import { init as workspaceInit } from "../pages/workspace/workspace.js";
 
 const PAGES = {
   login:   { label: "Login",     path: "pages/login/login.html",     init: loginInit,    requiresAuth: false },
@@ -16,6 +17,7 @@ const PAGES = {
   students:{ label: "Estudiantes",path: "pages/students/students.html", init: studentsInit, requiresAuth: true },
   progress:{ label: "Progreso",  path: "pages/progress/progress.html", init: progressInit, requiresAuth: true },
   users:   { label: "Usuarios",  path: "pages/users/users.html",     init: usersInit,    requiresAuth: true },
+  workspace:{ label: "Workspace",path: "pages/workspace/workspace.html", init: workspaceInit, requiresAuth: true },
 };
 
 let currentPage = "login";
@@ -43,18 +45,31 @@ function refreshNav() {
 
 function buildNav() {
   const nav = document.getElementById("app-nav");
+  const brand = document.querySelector(".brand");
   if (!nav) return;
 
   const logged = isLoggedIn();
   nav.innerHTML = "";
 
-  const left = document.createElement("div");
-  left.className = "d-flex gap-2";
+  // Contenedor principal
+  nav.className = "d-flex align-items-center gap-3 flex-wrap w-100";
 
-  const right = document.createElement("div");
-  right.className = "ms-auto";
+  // Mover la marca (icono + nombre) al navbar y ajustar tamaños
+  if (brand) {
+    brand.classList.add("d-flex", "align-items-center", "gap-2", "mb-0");
+    brand.style.margin = "0";
+    brand.style.cursor = "pointer";
+    brand.addEventListener("click", (e) => {
+      e.preventDefault();
+      displayPage("home");
+    });
+    nav.appendChild(brand);
+  }
 
-  const order = ["home", "topics", "blocks", "tasks", "students", "progress", "users"];
+  const links = document.createElement("div");
+  links.className = "d-flex align-items-center gap-3 flex-grow-1";
+
+  const order = ["home","topics", "students", "users", "workspace"];
   if (logged) {
     order.forEach((key) => {
       const page = PAGES[key];
@@ -67,19 +82,18 @@ function buildNav() {
         e.preventDefault();
         displayPage(key);
       });
-      left.appendChild(link);
+      links.appendChild(link);
     });
   }
 
   const authBtn = document.createElement("button");
   authBtn.id = "auth-btn";
-  authBtn.className = "btn btn-outline-primary btn-sm";
+  authBtn.className = "btn btn-outline-primary btn-sm ms-auto";
   authBtn.addEventListener("click", handleAuthClick);
   updateAuthButton(authBtn);
 
-  nav.appendChild(left);
-  nav.appendChild(right);
-  right.appendChild(authBtn);
+  nav.appendChild(links);
+  nav.appendChild(authBtn);
 }
 
 function updateAuthButton(btn) {
@@ -89,7 +103,7 @@ function updateAuthButton(btn) {
 async function displayPage(pageKey) {
   const logged = isLoggedIn();
   const page = PAGES[pageKey];
-  const fallback = logged ? "home" : "login";
+  const fallback = logged ? "topics" : "login";
   if (!page || (page.requiresAuth && !logged)) {
     if (pageKey !== fallback) return displayPage(fallback);
     return;

@@ -15,12 +15,12 @@ User = get_user_model()
 class UserViewSet(viewsets.ModelViewSet):
     """CRUD básico sobre el usuario Django por defecto."""
 
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by("id")
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
     lookup_field = "id"
     search_fields = ["username", "email", "first_name", "last_name"]
-    ordering_fields = ["date_joined", "username"]
+    ordering_fields = ["date_joined", "username", "id"]
 
 
 class StudentViewSet(viewsets.ModelViewSet):

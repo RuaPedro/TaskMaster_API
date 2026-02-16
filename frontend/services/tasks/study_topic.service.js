@@ -2,7 +2,7 @@ import { environment } from "../../environment.js";
 
 export class StudyTopicService
 {
-    baseUrl = `${environment.apiUrl}/topics`;
+    baseUrl = `${environment.apiUrl}/topics/`;
 
     async getAll()
     {

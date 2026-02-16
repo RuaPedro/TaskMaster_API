@@ -2,7 +2,8 @@ import { environment } from "../../environment.js";
 
 export class UserService
 {
-    baseUrl = `${environment.apiUrl}/users`;
+    // Django REST Framework espera trailing slash con APPEND_SLASH activo
+    baseUrl = `${environment.apiUrl}/users/`;
 
     async getAll()
     {
@@ -58,7 +59,7 @@ export class UserService
     async update(user)
     {
         if (!user?.id) throw new Error('User id is required for update');
-        const url = `${this.baseUrl}/${user.id}`;
+        const url = `${this.baseUrl}${user.id}/`;
 
         try
         {
@@ -86,7 +87,7 @@ export class UserService
     async delete(id)
     {
         if (!id) throw new Error('User id is required for delete');
-        const url = `${this.baseUrl}/${id}`;
+        const url = `${this.baseUrl}${id}/`;
 
         try
         {
