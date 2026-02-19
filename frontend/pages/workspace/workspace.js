@@ -17,6 +17,8 @@ let selectedTopicId = null;
 let selectedBlockId = null;
 let editorMode = "web"; // web | python
 let skulptReady = false;
+let activeWebPane = "html"; // html | css | js
+let lastCssJsPane = "css";
 
 const topicService = new StudyTopicService();
 const blockService = new StudyBlockService();
@@ -47,6 +49,11 @@ function wireButtons() {
   });
   document.getElementById("mode-web")?.addEventListener("change", () => switchMode("web"));
   document.getElementById("mode-py")?.addEventListener("change", () => switchMode("python"));
+  wireWebTabs();
+  wireAutosave();
+  document.getElementById("ws-cycle-editor")?.addEventListener("click", cycleWebPane);
+  // ensure initial state only shows HTML
+  setActiveWebPane(activeWebPane);
 }
 
 async function loadCatalog() {
@@ -193,9 +200,7 @@ function setTask(id) {
   if (desc) desc.textContent = task ? task.instructions || "Escribe tu solucion." : "Aqui podras escribir codigo y ver el resultado.";
   updateCompleteButton();
 
-  if (task) {
-    setDefaultSnippets(task, topic, block);
-  }
+  applySnippets(task, topic, block);
 }
 
 function runCode() {
@@ -314,16 +319,57 @@ function defaultSnippet(topic, block, task) {
   };
 }
 
-function setDefaultSnippets(task, topic, block) {
-  const { html, css, js, py } = defaultSnippet(topic, block, task);
+function applySnippets(task, topic, block) {
+  const defaults = defaultSnippet(topic, block, task);
+  const draft = loadDraft(task?.id);
+  const values = {
+    html: draft?.html ?? defaults.html,
+    css: draft?.css ?? defaults.css,
+    js: draft?.js ?? defaults.js,
+    py: draft?.py ?? defaults.py,
+  };
+  setEditorValues(values, true);
+  saveDraft(); // persist current state immediately
+}
+
+function setEditorValues(values, overwrite = false) {
   const htmlEl = document.getElementById("ws-editor-html");
   const cssEl = document.getElementById("ws-editor-css");
   const jsEl = document.getElementById("ws-editor-js");
   const pyEl = document.getElementById("ws-editor-py");
-  if (htmlEl && !htmlEl.value) htmlEl.value = html;
-  if (cssEl && !cssEl.value) cssEl.value = css;
-  if (jsEl && !jsEl.value) jsEl.value = js;
-  if (pyEl && !pyEl.value) pyEl.value = py;
+  if (htmlEl && (overwrite || !htmlEl.value)) htmlEl.value = values.html ?? "";
+  if (cssEl && (overwrite || !cssEl.value)) cssEl.value = values.css ?? "";
+  if (jsEl && (overwrite || !jsEl.value)) jsEl.value = values.js ?? "";
+  if (pyEl && (overwrite || !pyEl.value)) pyEl.value = values.py ?? "";
+}
+
+function wireAutosave() {
+  ["ws-editor-html", "ws-editor-css", "ws-editor-js", "ws-editor-py"].forEach((id) => {
+    document.getElementById(id)?.addEventListener("input", saveDraft);
+  });
+}
+
+function saveDraft() {
+  if (!selectedTaskId) return;
+  const payload = {
+    html: document.getElementById("ws-editor-html")?.value || "",
+    css: document.getElementById("ws-editor-css")?.value || "",
+    js: document.getElementById("ws-editor-js")?.value || "",
+    py: document.getElementById("ws-editor-py")?.value || "",
+  };
+  localStorage.setItem(`tm_workspace_draft_${selectedTaskId}`, JSON.stringify(payload));
+}
+
+function loadDraft(taskId) {
+  if (!taskId) return null;
+  try {
+    const raw = localStorage.getItem(`tm_workspace_draft_${taskId}`);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    return typeof data === "object" ? data : null;
+  } catch {
+    return null;
+  }
 }
 
 function switchMode(mode) {
@@ -332,6 +378,53 @@ function switchMode(mode) {
   const py = document.getElementById("ws-stack-py");
   if (web) web.classList.toggle("d-none", mode !== "web");
   if (py) py.classList.toggle("d-none", mode !== "python");
+  if (mode === "web") {
+    setActiveWebPane(activeWebPane);
+  }
+}
+
+function wireWebTabs() {
+  const tabs = document.querySelectorAll("#ws-web-tabs [data-pane]");
+  tabs.forEach((btn) =>
+    btn.addEventListener("click", () => {
+      setActiveWebPane(btn.dataset.pane);
+    })
+  );
+}
+
+function setActiveWebPane(pane) {
+  if (!pane) return;
+  activeWebPane = pane;
+  if (pane === "css" || pane === "js") lastCssJsPane = pane;
+  document.querySelectorAll("#ws-web-tabs [data-pane]").forEach((b) =>
+    b.classList.toggle("active", b.dataset.pane === pane)
+  );
+  showWebPane(pane);
+  updateCycleLabel();
+}
+
+function showWebPane(pane) {
+  document.querySelectorAll(".web-pane").forEach((paneEl) => {
+    const isMatch = paneEl.dataset.pane === pane;
+    paneEl.classList.toggle("d-none", !isMatch);
+    paneEl.classList.toggle("active-pane", isMatch);
+  });
+}
+
+function cycleWebPane() {
+  const order = ["html", "css", "js"];
+  const idx = order.indexOf(activeWebPane);
+  const next = order[(idx + 1) % order.length];
+  setActiveWebPane(next);
+}
+
+function updateCycleLabel() {
+  const btn = document.getElementById("ws-cycle-editor");
+  if (!btn) return;
+  const order = ["html", "css", "js"];
+  const next = order[(order.indexOf(activeWebPane) + 1) % order.length];
+  const label = next === "html" ? "Cambiar a HTML" : next === "css" ? "Cambiar a CSS" : "Cambiar a JS";
+  btn.textContent = label;
 }
 
 function escapeHtml(str) {

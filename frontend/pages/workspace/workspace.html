@@ -65,15 +65,37 @@
             </div>
 
             <div class="code-stack flex-grow-1" id="ws-stack-web">
-              <label class="form-label small mb-1">HTML</label>
-              <textarea id="ws-editor-html" class="form-control code-pane code-html flex-fill" spellcheck="false"
-                placeholder="Escribe tu HTML..."></textarea>
-              <label class="form-label small mt-2 mb-1">CSS</label>
-              <textarea id="ws-editor-css" class="form-control code-pane code-css flex-fill" spellcheck="false"
-                placeholder="Escribe tu CSS..."></textarea>
-              <label class="form-label small mt-2 mb-1">JavaScript</label>
-              <textarea id="ws-editor-js" class="form-control code-pane code-js flex-fill" spellcheck="false"
-                placeholder="Escribe tu JS..."></textarea>
+              <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                <label class="form-label small mb-0">Editor</label>
+                <div class="btn-group btn-group-sm" id="ws-web-tabs" role="group" aria-label="Editor de código">
+                  <button type="button" class="btn btn-outline-secondary active" data-pane="html">HTML</button>
+                  <button type="button" class="btn btn-outline-secondary" data-pane="css">CSS</button>
+                  <button type="button" class="btn btn-outline-secondary" data-pane="js">JavaScript</button>
+                </div>
+              </div>
+
+              <div class="web-pane" data-pane="html">
+                <div class="d-flex justify-content-between align-items-center">
+                  <label class="form-label small mb-1 mb-0">HTML</label>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" id="ws-cycle-editor">
+                    Cambiar a CSS
+                  </button>
+                </div>
+                <textarea id="ws-editor-html" class="form-control code-pane code-html flex-fill" spellcheck="false"
+                  placeholder="Escribe tu HTML..."></textarea>
+              </div>
+
+              <div class="web-pane d-none" data-pane="css">
+                <label class="form-label small mb-1">CSS</label>
+                <textarea id="ws-editor-css" class="form-control code-pane code-css flex-fill" spellcheck="false"
+                  placeholder="Escribe tu CSS..."></textarea>
+              </div>
+
+              <div class="web-pane d-none" data-pane="js">
+                <label class="form-label small mb-1">JavaScript</label>
+                <textarea id="ws-editor-js" class="form-control code-pane code-js flex-fill" spellcheck="false"
+                  placeholder="Escribe tu JS..."></textarea>
+              </div>
             </div>
 
             <div class="code-stack flex-grow-1 d-none" id="ws-stack-py">
