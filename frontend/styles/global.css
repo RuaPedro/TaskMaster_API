@@ -119,6 +119,18 @@ iframe#code-preview {
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 0.95rem;
   line-height: 1.45;
+  /* Show at least ~30 lines and allow scrolling when content grows */
+  min-height: 42rem !important;
+  height: auto;
+  overflow-y: auto;
+  overflow-x: auto;
+  white-space: pre;
+  resize: vertical;
+}
+
+/* Only keep one web pane visible at a time */
+.web-pane:not(.active-pane) {
+  display: none !important;
 }
 .code-pane:focus {
   background: #1b1b1b;
@@ -139,7 +151,7 @@ iframe#code-preview {
 }
 
 .card .card-body {
-  background: var(--tm-surface);
+  background: transparent !important;
 }
 
 .btn-success {
